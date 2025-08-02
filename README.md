@@ -1,6 +1,8 @@
-# Gmail Spam Detector
+# Gmail Spam Detector with Counter-Attack
 
 A machine learning-powered spam detection system that integrates with Gmail API to analyze your emails in real-time. Built with scikit-learn Naive Bayes classifier.
+
+**🎯 NEW: Counter-Attack Feature!** Automatically send rickroll emails back to spammers!
 
 ## 🔗 Repository
 
@@ -8,6 +10,19 @@ A machine learning-powered spam detection system that integrates with Gmail API 
 - Canva(Slide): https://www.canva.com/design/DAGu3r1dtG8/na4Na-2YmaCu8Eg56mffbQ/edit?utm_content=DAGu3r1dtG8&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 - Notion(Note): https://www.notion.so/Project-231838f5c281808d97d8c2ffae73e25c?source=copy_link
 
+## 🌟 Features
+
+- **Spam Detection**: Multinomial Naive Bayes classifier with 95%+ accuracy
+- **Gmail Integration**: Real-time scanning of your Gmail messages
+- **🎯 Counter-Attack**: Send rickroll emails back to spammers!
+- **Web Interface**: User-friendly Streamlit dashboard
+- **Auto or Manual**: Choose to send counter-attacks automatically or manually
+
+## 🎯 Counter-Attack Modes
+
+1. **Scan Only**: Just detect spam (safe mode)
+2. **Prepare Counter-Attacks**: Detect spam and prepare rickroll emails
+3. **Auto Counter-Attack**: Automatically send rickroll emails to spammers! 😈
 
 ## Prerequisites
 
@@ -59,11 +74,27 @@ pip install -r requirements.txt
 ```bash
 streamlit run streamlit_app.py
 ```
-Open browser to `http://localhost:8501`
+- Includes counter-attack buttons
+- Visual spam detection with rickroll options
 
-#### Option 2: Command Line
+#### Option 2: Command Line with Counter-Attack
 ```bash
 python gmail_spam_detector.py
 ```
+- Choose from 3 modes including auto counter-attack
+- Manual control over each counter-attack
+
+#### Option 3: Demo Mode
+```bash
+python counter_attack_demo.py
+```
+- Test the counter-attack email generation
+- Safe demo without sending real emails
+
+### Disclaimer
+
+The counter-attack feature is for educational and entertainment purposes. Use responsibly and in accordance with your local laws and email provider's terms of service. The rickroll is harmless fun, but sending unsolicited emails could have legal implications depending on your jurisdiction.
+
+**Use at your own risk and be a responsible digital citizen!** 
 
 

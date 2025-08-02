@@ -1,0 +1,28 @@
+Subject: 🚨 URGENT: Account Security Verification Required
+
+Dear {sender_name},
+
+We have detected suspicious spam activity from your account!
+
+Your recent email with subject "{spam_subject}" has been flagged by our advanced AI spam detection system.
+
+⚡ IMMEDIATE ACTION REQUIRED
+
+To prevent your account from being permanently suspended, you must verify your identity within 24 hours.
+
+VERIFY YOUR ACCOUNT NOW: {verify_link}
+
+What happens if you don't verify:
+• Your email account will be flagged
+• All future emails will be blocked
+• Your IP address will be reported to authorities
+• Your internet provider will be notified
+
+This is an automated response from the Anti-Spam Defense System.
+Powered by AI Spam Detection Technology 🤖
+
+Think twice before sending spam emails! 😎
+
+---
+Anti-Spam Defense System
+Automated Security Response

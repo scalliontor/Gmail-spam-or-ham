@@ -1,6 +1,6 @@
 # Gmail Spam Detector
 
-A machine learning-powered spam detection system that integrates with Gmail API to analyze your emails in real-time. Built with scikit-learn's Multinomial Naive Bayes classifier and featuring both command-line and web interfaces.
+A machine learning-powered spam detection system that integrates with Gmail API to analyze your emails in real-time. Built with scikit-learn Naive Bayes classifier.
 
 ## 🔗 Repository
 
@@ -8,27 +8,14 @@ A machine learning-powered spam detection system that integrates with Gmail API 
 - Canva(Slide): https://www.canva.com/design/DAGu3r1dtG8/na4Na-2YmaCu8Eg56mffbQ/edit?utm_content=DAGu3r1dtG8&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 - Notion(Note): https://www.notion.so/Project-231838f5c281808d97d8c2ffae73e25c?source=copy_link
 
-```bash
-git clone https://github.com/scalliontor/Gmail-spam-or-ham.git
-cd Gmail-spam-or-ham
-```
 
-## 🌟 Features
-
-- **Spam Detection**: Uses Multinomial Naive Bayes classifier with 95%+ accuracy
-- **Gmail Integration**: Real-time scanning of your Gmail messages
-- **Web Interface**: User-friendly Streamlit dashboard
-- **Text Preprocessing**: Advanced NLP pipeline with NLTK
-- **Model Persistence**: Save and load trained models
-- **Analytics Dashboard**: Visualize spam detection results
-
-## 📋 Prerequisites
+## Prerequisites
 
 - Python 3.7 or higher
 - Gmail account
 - Google Cloud Platform account (free tier works)
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone and Install
 
@@ -43,7 +30,7 @@ pip install -r requirements.txt
 
 ### 2. Create Gmail Credentials
 
-**⚠️ Important**: The `credentials.json` file is not included in the repository for security reasons. You need to create your own:
+** Important**: The `credentials.json` file is not included in the repository for security reasons. You need to create your own:
 
 1. **Create Google Cloud Project**:
    - Go to [Google Cloud Console](https://console.cloud.google.com/)
@@ -79,5 +66,4 @@ Open browser to `http://localhost:8501`
 python gmail_spam_detector.py
 ```
 
-## 📁 Project Structure
 

@@ -8,6 +8,7 @@ import base64
 import nltk
 import re
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import random
 from collections import Counter
 
@@ -51,7 +52,7 @@ class SimpleDataAugmentation:
                     synonym = lemma.name().replace('_', ' ')
                     if synonym != word and synonym.isalpha():
                         synonyms.append(synonym)
-            return synonyms[:3]  # Limit to 3
+            return synonyms[:3]
         except:
             return []
     
@@ -100,12 +101,10 @@ class GmailSpamDetector:
     
     def preprocess_text(self, text):
         try:
-            # Clean and tokenize
             text = text.lower()
             text = text.translate(str.maketrans('', '', string.punctuation))
             words = nltk.word_tokenize(text)
             
-            # Remove stop words and stem
             stop_words = set(nltk.corpus.stopwords.words('english'))
             words = [word for word in words if word not in stop_words and len(word) > 1]
             
@@ -133,22 +132,18 @@ class GmailSpamDetector:
     
     def train_model(self, use_augmentation=True):
         try:
-            # Load data
             df = pd.read_csv(self.dataset_path)
             messages = df['Message'].values.tolist()
             labels = df['Category'].values.tolist()
             
-            # Preprocess
             processed_messages = [self.preprocess_text(msg) for msg in messages]
             
-            # Augmentation
             if use_augmentation:
                 augmented_messages, augmented_labels = [], []
                 for message, label in zip(processed_messages, labels):
                     augmented_messages.append(message)
                     augmented_labels.append(label)
                     
-                    # Add augmented versions
                     new_versions = self.augmenter.augment_text(message, label)
                     for new_version in new_versions:
                         augmented_messages.append(new_version)
@@ -156,20 +151,16 @@ class GmailSpamDetector:
                 
                 processed_messages, labels = augmented_messages, augmented_labels
             
-            # Create features
             self.dictionary = self.create_dictionary(processed_messages)
             X = np.array([self.text_to_features(words) for words in processed_messages])
             
-            # Encode labels
             self.label_encoder = LabelEncoder()
             y = self.label_encoder.fit_transform(labels)
             
-            # Train
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
             self.model = MultinomialNB()
             self.model.fit(X_train, y_train)
             
-            # Test
             y_pred = self.model.predict(X_test)
             accuracy = accuracy_score(y_test, y_pred)
             
@@ -225,11 +216,9 @@ class GmailSpamDetector:
         try:
             creds = None
             
-            # Load existing token
             if os.path.exists('token.json'):
                 creds = Credentials.from_authorized_user_file('token.json', self.gmail_scopes)
             
-            # Get new credentials if needed
             if not creds or not creds.valid:
                 if creds and creds.expired and creds.refresh_token:
                     creds.refresh(Request())
@@ -240,13 +229,11 @@ class GmailSpamDetector:
                     flow = InstalledAppFlow.from_client_secrets_file('credentials.json', self.gmail_scopes)
                     creds = flow.run_local_server(port=0, open_browser=True)
                 
-                # Save credentials
                 with open('token.json', 'w') as token:
                     token.write(creds.to_json())
             
-            # Create service
             self.gmail_service = build('gmail', 'v1', credentials=creds)
-            self.gmail_service.users().getProfile(userId='me').execute()  # Test connection
+            self.gmail_service.users().getProfile(userId='me').execute()
             return True
         except:
             return False
@@ -256,7 +243,6 @@ class GmailSpamDetector:
             if not self.gmail_service:
                 return []
             
-            # Get email list
             date_filter = (datetime.now() - timedelta(days=days_back)).strftime('%Y/%m/%d')
             query = f'after:{date_filter}'
             
@@ -267,7 +253,6 @@ class GmailSpamDetector:
             messages = results.get('messages', [])
             email_data = []
             
-            # Get email details
             for msg in messages:
                 try:
                     email = self.gmail_service.users().messages().get(userId='me', id=msg['id']).execute()
@@ -325,8 +310,42 @@ class GmailSpamDetector:
             sender_name, sender_email = self.extract_sender_info(spammer_info)
             rickroll_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             
-            # Default template if file doesn't exist
-            template = ""      
+            # Create fake verification URL
+            fake_verification_url = f"https://account-security-verification.com/verify?token=AUTH_{random.randint(100000, 999999)}"
+            
+            # Try to import HTML email creator
+            try:
+                from create_html_rickroll import create_html_rickroll_email
+                email_data = create_html_rickroll_email(sender_name, spam_subject, rickroll_url)
+                return email_data['subject'], email_data['html'], email_data['text'], sender_email
+            except ImportError:
+                pass
+            
+            # Updated default template to match your style
+            template = """Subject: ⚠️ SECURITY ALERT ⚠️
+
+Dear "{sender_name}",
+
+We have detected suspicious spam activity from your account!
+
+Your recent email with subject "{spam_subject}" has been flagged by our advanced AI spam detection system.
+
+⚡ IMMEDIATE ACTION REQUIRED
+
+To prevent your account from being permanently suspended, you must verify your identity within 24 hours.
+
+VERIFY YOUR ACCOUNT NOW: {verify_link}
+
+What happens if you don't verify:
+• Your email account will be flagged
+• All future emails will be blocked
+• Your IP address will be reported to authorities
+• Your internet provider will be notified
+
+---
+Anti-Spam Defense System
+Automated Security Response"""
+
             # Try to read custom template
             if os.path.exists('email.txt'):
                 with open('email.txt', 'r', encoding='utf-8') as f:
@@ -336,12 +355,12 @@ class GmailSpamDetector:
             email_content = template.format(
                 sender_name=sender_name,
                 spam_subject=spam_subject,
-                verify_link=rickroll_url
+                verify_link=fake_verification_url
             )
             
             # Extract subject and body
             lines = email_content.split('\n')
-            subject = "🚨 URGENT: Security Alert"
+            subject = "⚠️ SECURITY ALERT ⚠️"
             body = email_content
             
             for line in lines:
@@ -350,15 +369,24 @@ class GmailSpamDetector:
                     body = '\n'.join(lines[lines.index(line)+1:]).strip()
                     break
             
-            return subject, body, sender_email
+            return subject, body, body, sender_email
         except:
-            return "Security Alert", "Your email was flagged as spam.", spammer_info
+            return "⚠️ SECURITY ALERT ⚠️", "Your email was flagged as spam.", "Your email was flagged as spam.", spammer_info
     
-    def send_counter_email(self, to_email, subject, body):
+    def send_counter_email(self, to_email, subject, html_body, text_body):
         try:
-            message = MIMEText(body)
+            # Create multipart message
+            message = MIMEMultipart('alternative')
             message['to'] = to_email
             message['subject'] = subject
+            message['from'] = 'Anti-Spam Security System <noreply@security-alerts.com>'
+            
+            # Add text and HTML parts
+            text_part = MIMEText(text_body, 'plain')
+            html_part = MIMEText(html_body, 'html')
+            
+            message.attach(text_part)
+            message.attach(html_part)
             
             raw_message = {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
             sent = self.gmail_service.users().messages().send(userId='me', body=raw_message).execute()
@@ -369,7 +397,6 @@ class GmailSpamDetector:
     
     def scan_gmail_for_spam(self, max_emails=20, days_back=7):
         try:
-            # Get emails
             emails = self.get_recent_emails(max_emails, days_back)
             if not emails:
                 return [], 0
@@ -377,7 +404,6 @@ class GmailSpamDetector:
             results = []
             counter_attacks_sent = 0
             
-            # Check each email
             for email in emails:
                 try:
                     prediction, confidence = self.predict_spam(email['full_text'])
@@ -392,7 +418,7 @@ class GmailSpamDetector:
                     }
                     results.append(result)
                     
-                    # Automatically send counter-attack for high-confidence spam
+                    # Auto-send counter-attack for high-confidence spam
                     if prediction == 'spam' and confidence > 0.7:
                         sender_name, sender_email = self.extract_sender_info(email['sender'])
                         
@@ -400,8 +426,8 @@ class GmailSpamDetector:
                         skip_emails = ['noreply', 'no-reply', 'donotreply', 'mailer-daemon']
                         if not any(skip in sender_email.lower() for skip in skip_emails):
                             try:
-                                subject, body, target = self.create_rickroll_email(email['sender'], email['subject'])
-                                success, _ = self.send_counter_email(target, subject, body)
+                                subject, html_body, text_body, target = self.create_rickroll_email(email['sender'], email['subject'])
+                                success, _ = self.send_counter_email(target, subject, html_body, text_body)
                                 if success:
                                     counter_attacks_sent += 1
                                     result['counter_attack_sent'] = True

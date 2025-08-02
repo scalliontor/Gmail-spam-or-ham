@@ -1,6 +1,6 @@
-Subject: 🚨 URGENT: Account Security Verification Required
+Subject: ⚠️ SECURITY ALERT ⚠️
 
-Dear {sender_name},
+Dear "{sender_name}",
 
 We have detected suspicious spam activity from your account!
 
@@ -17,11 +17,6 @@ What happens if you don't verify:
 • All future emails will be blocked
 • Your IP address will be reported to authorities
 • Your internet provider will be notified
-
-This is an automated response from the Anti-Spam Defense System.
-Powered by AI Spam Detection Technology 🤖
-
-Think twice before sending spam emails! 😎
 
 ---
 Anti-Spam Defense System

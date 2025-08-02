@@ -4,7 +4,9 @@ A machine learning-powered spam detection system that integrates with Gmail API 
 
 ## 🔗 Repository
 
-GitHub: https://github.com/scalliontor/Gmail-spam-or-ham.git
+GitHub(Code): https://github.com/scalliontor/Gmail-spam-or-ham.git
+Canva(Slide): https://www.canva.com/design/DAGu3r1dtG8/na4Na-2YmaCu8Eg56mffbQ/edit?utm_content=DAGu3r1dtG8&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+Notion(Note): https://www.notion.so/Project-231838f5c281808d97d8c2ffae73e25c?source=copy_link
 
 ```bash
 git clone https://github.com/scalliontor/Gmail-spam-or-ham.git

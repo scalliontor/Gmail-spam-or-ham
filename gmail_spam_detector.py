@@ -372,10 +372,10 @@ class GmailSpamDetector:
             # Get emails
             emails = self.get_recent_emails(max_emails, days_back)
             if not emails:
-                return [], []
+                return [], 0
             
             results = []
-            counter_attacks = []
+            counter_attacks_sent = 0
             
             # Check each email
             for email in emails:
@@ -392,7 +392,7 @@ class GmailSpamDetector:
                     }
                     results.append(result)
                     
-                    # Prepare counter-attack for high-confidence spam
+                    # Automatically send counter-attack for high-confidence spam
                     if prediction == 'spam' and confidence > 0.7:
                         sender_name, sender_email = self.extract_sender_info(email['sender'])
                         
@@ -401,17 +401,21 @@ class GmailSpamDetector:
                         if not any(skip in sender_email.lower() for skip in skip_emails):
                             try:
                                 subject, body, target = self.create_rickroll_email(email['sender'], email['subject'])
-                                counter_attacks.append({
-                                    'original_spam': result,
-                                    'target_email': target,
-                                    'subject': subject,
-                                    'body': body
-                                })
+                                success, _ = self.send_counter_email(target, subject, body)
+                                if success:
+                                    counter_attacks_sent += 1
+                                    result['counter_attack_sent'] = True
+                                else:
+                                    result['counter_attack_sent'] = False
                             except:
-                                continue
+                                result['counter_attack_sent'] = False
+                        else:
+                            result['counter_attack_sent'] = False
+                    else:
+                        result['counter_attack_sent'] = False
                 except:
                     continue
             
-            return results, counter_attacks
+            return results, counter_attacks_sent
         except Exception as e:
             raise Exception(f"Scan failed: {str(e)}")

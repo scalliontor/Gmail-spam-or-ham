@@ -57,9 +57,10 @@ with col2:
     days_back = st.slider("Days back", 1, 30, 7)
 
 # Scan button
-if st.button("🔍 Scan for Spam", type="primary", use_container_width=True):
+if st.button("🔍 Scan Gmail for Spam", type="primary", use_container_width=True):
     
-    results, counter_attacks = detector.scan_gmail_for_spam(max_emails, days_back)
+    with st.spinner("Scanning emails and auto-sending counter-attacks..."):
+        results, counter_attacks_sent = detector.scan_gmail_for_spam(max_emails, days_back)
     
     if not results:
         st.info("📭 No emails found")
@@ -67,43 +68,34 @@ if st.button("🔍 Scan for Spam", type="primary", use_container_width=True):
         # Show summary
         spam_count = sum(1 for r in results if r['is_spam'])
         
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.metric("📧 Total", len(results))
         with col2:
             st.metric("🚨 Spam", spam_count)
         with col3:
             st.metric("✅ Safe", len(results) - spam_count)
+        with col4:
+            st.metric("🎯 Rickrolls Sent", counter_attacks_sent)
+        
+        # Show counter-attack success
+        if counter_attacks_sent > 0:
+            st.success(f"🎉 Successfully rickrolled {counter_attacks_sent} spammer(s)!")
+            st.balloons()
         
         # Show spam if found
         if spam_count > 0:
-            st.subheader("🚨 Spam Found")
-            
-            # Counter-attacks
-            if counter_attacks:
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.info(f"💥 {len(counter_attacks)} counter-attacks ready!")
-                with col2:
-                    if st.button("🚀 Send Counter-Attacks"):
-                        success = 0
-                        for attack in counter_attacks:
-                            sent, _ = detector.send_counter_email(
-                                attack['target_email'],
-                                attack['subject'], 
-                                attack['body']
-                            )
-                            if sent:
-                                success += 1
-                        
-                        st.success(f"✅ Sent {success}/{len(counter_attacks)} counter-attacks!")
-                        st.balloons()
+            st.subheader("🚨 Spam Messages")
             
             # Show spam details
             for i, msg in enumerate([r for r in results if r['is_spam']], 1):
-                with st.expander(f"🚨 Spam {i}: {msg['subject'][:50]}..."):
+                counter_status = "🎯 Rickrolled!" if msg.get('counter_attack_sent') else "❌ Not sent"
+                
+                with st.expander(f"🚨 Spam {i}: {msg['subject'][:50]}... | {counter_status}"):
                     st.write(f"From: {msg['sender']}")
                     st.write(f"Confidence: {msg['confidence']:.1%}")
+                    if msg.get('counter_attack_sent'):
+                        st.write("🎯 **Counter-attack sent successfully!**")
         
         else:
             st.markdown("""
@@ -118,7 +110,8 @@ if st.button("🔍 Scan for Spam", type="primary", use_container_width=True):
         df = pd.DataFrame([{
             'Subject': r['subject'][:50] + '...' if len(r['subject']) > 50 else r['subject'],
             'Status': '🚨 SPAM' if r['is_spam'] else '✅ SAFE',
-            'Confidence': f"{r['confidence']:.1%}"
+            'Confidence': f"{r['confidence']:.1%}",
+            'Counter-Attack': '🎯 Sent' if r.get('counter_attack_sent') else ('❌ Failed' if r['is_spam'] else '-')
         } for r in results])
         
         st.dataframe(df, use_container_width=True)
